@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyber Threat Intelligence Dashboard - SOC</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <div class="logo-icon">🛡️</div>
+                <h2>CTI Dashboard</h2>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li><a href="#" class="nav-item active" data-module="dashboard">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-text">Dashboard</span>
+                </a></li>
+                <li><a href="#" class="nav-item" data-module="threat-feed">
+                    <span class="nav-icon">🔴</span>
+                    <span class="nav-text">Live Threat Feed</span>
+                </a></li>
+                <li><a href="#" class="nav-item" data-module="malicious-ip">
+                    <span class="nav-icon">🌐</span>
+                    <span class="nav-text">Malicious IPs</span>
+                </a></li>
+                <li><a href="#" class="nav-item" data-module="phishing">
+                    <span class="nav-icon">🎣</span>
+                    <span class="nav-text">Phishing Domains</span>
+                </a></li>
+                <li><a href="#" class="nav-item" data-module="malware">
+                    <span class="nav-icon">💀</span>
+                    <span class="nav-text">Malware Intel</span>
+                </a></li>
+                <li><a href="#" class="nav-item" data-module="analytics">
+                    <span class="nav-icon">📈</span>
+                    <span class="nav-text">Analytics & Trends</span>
+                </a></li>
+                <li><a href="#" class="nav-item" data-module="alerts">
+                    <span class="nav-icon">⚠️</span>
+                    <span class="nav-text">Alerts & Incidents</span>
+                </a></li>
+                <li><a href="#" class="nav-item" data-module="reports">
+                    <span class="nav-icon">📄</span>
+                    <span class="nav-text">Reports & Exports</span>
+                </a></li>
+                <li><a href="#" class="nav-item" data-module="settings">
+                    <span class="nav-icon">⚙️</span>
+                    <span class="nav-text">Settings</span>
+                </a></li>
+            </ul>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="status-indicator">
+                <span class="status-dot online"></span>
+                <span>System Online</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+        <!-- Top Navigation Bar -->
+        <header class="top-nav">
+            <div class="top-nav-left">
+                <button class="menu-toggle" id="menuToggle">☰</button>
+                <h1 id="pageTitle">Dashboard Overview</h1>
+            </div>
+            <div class="top-nav-right">
+                <div class="time-display" id="timeDisplay"></div>
+                <div class="threat-level-indicator">
+                    <span class="threat-label">Threat Level:</span>
+                    <span class="threat-level high" id="globalThreatLevel">HIGH</span>
+                </div>
+                <div class="user-profile">
+                    <div class="user-avatar">👤</div>
+                    <span class="user-name">SOC Analyst</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard Overview Module -->
+        <section class="module-content active" id="module-dashboard">
+            <div class="metrics-grid">
+                <div class="metric-card critical">
+                    <div class="metric-icon">🚨</div>
+                    <div class="metric-info">
+                        <h3>Critical Alerts</h3>
+                        <p class="metric-value" id="metric-critical">0</p>
+                        <span class="metric-change positive">+12% from last hour</span>
+                    </div>
+                </div>
+                <div class="metric-card warning">
+                    <div class="metric-icon">⚠️</div>
+                    <div class="metric-info">
+                        <h3>Total Threats</h3>
+                        <p class="metric-value" id="metric-threats">0</p>
+                        <span class="metric-change positive">+8% from last hour</span>
+                    </div>
+                </div>
+                <div class="metric-card info">
+                    <div class="metric-icon">🌐</div>
+                    <div class="metric-info">
+                        <h3>Malicious IPs</h3>
+                        <p class="metric-value" id="metric-ips">0</p>
+                        <span class="metric-change negative">-3% from last hour</span>
+                    </div>
+                </div>
+                <div class="metric-card success">
+                    <div class="metric-icon">🎣</div>
+                    <div class="metric-info">
+                        <h3>Phishing Attempts</h3>
+                        <p class="metric-value" id="metric-phishing">0</p>
+                        <span class="metric-change positive">+15% from last hour</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="charts-row">
+                <div class="chart-card">
+                    <h3>Threat Trends (24h)</h3>
+                    <canvas id="threatTrendsChart"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3>Threat Distribution</h3>
+                    <canvas id="threatDistributionChart"></canvas>
+                </div>
+            </div>
+
+            <div class="charts-row">
+                <div class="chart-card">
+                    <h3>Attack Patterns</h3>
+                    <canvas id="attackPatternsChart"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3>Top Threat Sources</h3>
+                    <canvas id="topSourcesChart"></canvas>
+                </div>
+            </div>
+
+            <div class="recent-threats-card">
+                <h3>Recent High-Priority Threats</h3>
+                <div class="threats-list" id="recentThreatsList"></div>
+            </div>
+
+            <div class="spam-checker-card">
+                <div class="spam-checker-header">
+                    <h3>Spam Link Checker</h3>
+                    <p>Paste a URL to quickly assess spam risk.</p>
+                </div>
+                <div class="spam-checker-form">
+                    <input type="url" id="spamLinkInput" placeholder="https://example.com/phish" />
+                    <button class="btn-primary" id="spamCheckBtn">Check Link</button>
+                </div>
+                <div class="spam-checker-result" id="spamResult">
+                    <p class="muted">Awaiting input...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Live Threat Feed Module -->
+        <section class="module-content" id="module-threat-feed">
+            <div class="module-header">
+                <h2>Live Threat Feed</h2>
+                <div class="feed-controls">
+                    <div class="search-box">
+                        <input type="text" id="feedSearch" placeholder="Search threats...">
+                        <span class="search-icon">🔍</span>
+                    </div>
+                    <select id="feedSeverityFilter" class="filter-select">
+                        <option value="all">All Severities</option>
+                        <option value="critical">Critical</option>
+                        <option value="high">High</option>
+                        <option value="medium">Medium</option>
+                        <option value="low">Low</option>
+                    </select>
+                    <select id="feedTypeFilter" class="filter-select">
+                        <option value="all">All Types</option>
+                        <option value="malware">Malware</option>
+                        <option value="phishing">Phishing</option>
+                        <option value="malicious-ip">Malicious IP</option>
+                        <option value="ddos">DDoS</option>
+                        <option value="exploit">Exploit</option>
+                    </select>
+                    <button class="btn-primary" id="refreshFeed">Refresh</button>
+                </div>
+            </div>
+            <div class="threat-feed-container">
+                <div class="threat-feed" id="threatFeedList"></div>
+            </div>
+        </section>
+
+        <!-- Malicious IP Intelligence Module -->
+        <section class="module-content" id="module-malicious-ip">
+            <div class="module-header">
+                <h2>Malicious IP Intelligence</h2>
+                <div class="feed-controls">
+                    <div class="search-box">
+                        <input type="text" id="ipSearch" placeholder="Search IP addresses...">
+                        <span class="search-icon">🔍</span>
+                    </div>
+                    <select id="ipRiskFilter" class="filter-select">
+                        <option value="all">All Risk Levels</option>
+                        <option value="critical">Critical</option>
+                        <option value="high">High</option>
+                        <option value="medium">Medium</option>
+                        <option value="low">Low</option>
+                    </select>
+                    <button class="btn-primary" id="refreshIPs">Refresh</button>
+                </div>
+            </div>
+            <div class="data-table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>IP Address</th>
+                            <th>Reputation Score</th>
+                            <th>Risk Level</th>
+                            <th>Threat Type</th>
+                            <th>First Seen</th>
+                            <th>Last Seen</th>
+                            <th>Source</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="maliciousIPTable"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Phishing and Malicious Domains Module -->
+        <section class="module-content" id="module-phishing">
+            <div class="module-header">
+                <h2>Phishing and Malicious Domains</h2>
+                <div class="feed-controls">
+                    <div class="search-box">
+                        <input type="text" id="domainSearch" placeholder="Search domains...">
+                        <span class="search-icon">🔍</span>
+                    </div>
+                    <select id="domainTypeFilter" class="filter-select">
+                        <option value="all">All Types</option>
+                        <option value="phishing">Phishing</option>
+                        <option value="malware">Malware Distribution</option>
+                        <option value="spam">Spam</option>
+                        <option value="botnet">Botnet C&C</option>
+                    </select>
+                    <button class="btn-primary" id="refreshDomains">Refresh</button>
+                </div>
+            </div>
+            <div class="data-table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Domain</th>
+                            <th>Threat Type</th>
+                            <th>Risk Score</th>
+                            <th>Registration Date</th>
+                            <th>First Detected</th>
+                            <th>Status</th>
+                            <th>Source</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="phishingDomainTable"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Malware Threat Intelligence Module -->
+        <section class="module-content" id="module-malware">
+            <div class="module-header">
+                <h2>Malware Threat Intelligence</h2>
+                <div class="feed-controls">
+                    <div class="search-box">
+                        <input type="text" id="malwareSearch" placeholder="Search by hash, name, or type...">
+                        <span class="search-icon">🔍</span>
+                    </div>
+                    <select id="malwareTypeFilter" class="filter-select">
+                        <option value="all">All Types</option>
+                        <option value="ransomware">Ransomware</option>
+                        <option value="trojan">Trojan</option>
+                        <option value="virus">Virus</option>
+                        <option value="worm">Worm</option>
+                        <option value="backdoor">Backdoor</option>
+                        <option value="rootkit">Rootkit</option>
+                    </select>
+                    <button class="btn-primary" id="refreshMalware">Refresh</button>
+                </div>
+            </div>
+            <div class="malware-grid">
+                <div class="malware-card" id="malwareCardTemplate" style="display: none;">
+                    <div class="malware-header">
+                        <h4 class="malware-name"></h4>
+                        <span class="malware-type-badge"></span>
+                    </div>
+                    <div class="malware-hash">
+                        <strong>Hash:</strong> <code class="hash-value"></code>
+                    </div>
+                    <div class="malware-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Severity:</span>
+                            <span class="detail-value severity-badge"></span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">First Seen:</span>
+                            <span class="detail-value first-seen"></span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Detections:</span>
+                            <span class="detail-value detections"></span>
+                        </div>
+                    </div>
+                    <div class="malware-description"></div>
+                    <div class="malware-actions">
+                        <button class="btn-secondary">View Details</button>
+                        <button class="btn-secondary">Export IOC</button>
+                    </div>
+                </div>
+                <div class="malware-list" id="malwareList"></div>
+            </div>
+        </section>
+
+        <!-- Threat Analytics and Trends Module -->
+        <section class="module-content" id="module-analytics">
+            <div class="module-header">
+                <h2>Threat Analytics and Trends</h2>
+                <div class="feed-controls">
+                    <select id="analyticsTimeRange" class="filter-select">
+                        <option value="24h">Last 24 Hours</option>
+                        <option value="7d">Last 7 Days</option>
+                        <option value="30d">Last 30 Days</option>
+                        <option value="90d">Last 90 Days</option>
+                    </select>
+                </div>
+            </div>
+            <div class="analytics-grid">
+                <div class="analytics-chart-large">
+                    <h3>Threat Activity Over Time</h3>
+                    <canvas id="analyticsTimelineChart"></canvas>
+                </div>
+                <div class="analytics-chart-medium">
+                    <h3>Geographic Distribution</h3>
+                    <canvas id="geographicChart"></canvas>
+                </div>
+                <div class="analytics-chart-medium">
+                    <h3>Attack Vector Distribution</h3>
+                    <canvas id="attackVectorChart"></canvas>
+                </div>
+                <div class="analytics-stats-card">
+                    <h3>Key Statistics</h3>
+                    <div class="stats-list" id="analyticsStats"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Alerts and Incident Management Module -->
+        <section class="module-content" id="module-alerts">
+            <div class="module-header">
+                <h2>Alerts and Incident Management</h2>
+                <div class="feed-controls">
+                    <select id="alertStatusFilter" class="filter-select">
+                        <option value="all">All Statuses</option>
+                        <option value="new">New</option>
+                        <option value="investigating">Investigating</option>
+                        <option value="resolved">Resolved</option>
+                        <option value="false-positive">False Positive</option>
+                    </select>
+                    <select id="alertSeverityFilter" class="filter-select">
+                        <option value="all">All Severities</option>
+                        <option value="critical">Critical</option>
+                        <option value="high">High</option>
+                        <option value="medium">Medium</option>
+                        <option value="low">Low</option>
+                    </select>
+                    <button class="btn-primary" id="refreshAlerts">Refresh</button>
+                </div>
+            </div>
+            <div class="alerts-container" id="alertsContainer"></div>
+        </section>
+
+        <!-- Reports and Exports Module -->
+        <section class="module-content" id="module-reports">
+            <div class="module-header">
+                <h2>Reports and Exports</h2>
+                <button class="btn-primary" id="generateReport">Generate Report</button>
+            </div>
+            <div class="reports-section">
+                <div class="report-options-card">
+                    <h3>Generate Custom Report</h3>
+                    <form id="reportForm">
+                        <div class="form-group">
+                            <label>Report Type</label>
+                            <select id="reportType" class="form-control">
+                                <option value="threat-summary">Threat Summary</option>
+                                <option value="incident-report">Incident Report</option>
+                                <option value="trend-analysis">Trend Analysis</option>
+                                <option value="custom">Custom Report</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Time Range</label>
+                            <select id="reportTimeRange" class="form-control">
+                                <option value="24h">Last 24 Hours</option>
+                                <option value="7d">Last 7 Days</option>
+                                <option value="30d">Last 30 Days</option>
+                                <option value="custom">Custom Range</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Format</label>
+                            <select id="reportFormat" class="form-control">
+                                <option value="pdf">PDF</option>
+                                <option value="csv">CSV</option>
+                                <option value="json">JSON</option>
+                                <option value="html">HTML</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="includeCharts"> Include Charts and Graphs
+                            </label>
+                        </div>
+                        <button type="submit" class="btn-primary">Generate Report</button>
+                    </form>
+                </div>
+                <div class="recent-reports-card">
+                    <h3>Recent Reports</h3>
+                    <div class="reports-list" id="reportsList"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Settings Module -->
+        <section class="module-content" id="module-settings">
+            <div class="module-header">
+                <h2>Settings</h2>
+            </div>
+            <div class="settings-container">
+                <div class="settings-section">
+                    <h3>Threat Intelligence Sources</h3>
+                    <div class="settings-list">
+                        <div class="setting-item">
+                            <label>
+                                <input type="checkbox" checked> Open Threat Exchange (OTX)
+                            </label>
+                            <span class="setting-status active">Active</span>
+                        </div>
+                        <div class="setting-item">
+                            <label>
+                                <input type="checkbox" checked> AbuseIPDB
+                            </label>
+                            <span class="setting-status active">Active</span>
+                        </div>
+                        <div class="setting-item">
+                            <label>
+                                <input type="checkbox" checked> VirusTotal Intelligence
+                            </label>
+                            <span class="setting-status active">Active</span>
+                        </div>
+                        <div class="setting-item">
+                            <label>
+                                <input type="checkbox"> ThreatConnect
+                            </label>
+                            <span class="setting-status inactive">Inactive</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="settings-section">
+                    <h3>Alert Thresholds</h3>
+                    <div class="form-group">
+                        <label>Critical Alert Threshold</label>
+                        <input type="number" class="form-control" value="90" min="0" max="100">
+                    </div>
+                    <div class="form-group">
+                        <label>High Alert Threshold</label>
+                        <input type="number" class="form-control" value="70" min="0" max="100">
+                    </div>
+                    <div class="form-group">
+                        <label>Auto-Refresh Interval (seconds)</label>
+                        <input type="number" class="form-control" value="30" min="5" max="300">
+                    </div>
+                </div>
+                <div class="settings-section">
+                    <h3>Display Preferences</h3>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" checked> Dark Mode
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" checked> Real-time Updates
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox"> Show Minimized Threats
+                        </label>
+                    </div>
+                </div>
+                <div class="settings-actions">
+                    <button class="btn-primary">Save Settings</button>
+                    <button class="btn-secondary">Reset to Defaults</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal/Popup for Details, Solutions, etc. -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3 id="modalTitle">Details</h3>
+                <button class="modal-close" id="modalClose">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Content will be inserted here -->
+            </div>
+            <div class="modal-footer" id="modalFooter">
+                <!-- Footer buttons will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Chatbot (Gemini) -->
+    <button class="floating-btn chat-btn" id="chatbotToggle" title="Chatbot (Gemini)">🤖</button>
+    <div class="chat-widget" id="chatWidget">
+        <div class="chat-header">
+            <div>
+                <h4>CyberSec Chatbot</h4>
+                <small>Powered by Google Gemini (bring your API key)</small>
+            </div>
+            <button class="modal-close" id="chatbotClose">&times;</button>
+        </div>
+        <div class="chat-body" id="chatMessages">
+            <div class="chat-message assistant">
+                <div class="chat-bubble">
+                    Hi! Ask me anything about cyber security or threats. Add your Gemini API key below to use live responses.
+                </div>
+            </div>
+        </div>
+        <div class="chat-controls">
+            <input type="password" id="geminiApiKey" placeholder="Gemini API Key (kept in this session only)">
+            <textarea id="chatInput" placeholder="Ask about cyber threats, mitigation, playbooks..." rows="2"></textarea>
+            <button class="btn-primary" id="chatSend">Send</button>
+        </div>
+    </div>
+
+    <!-- AI Suggestions -->
+    <button class="floating-btn suggestion-btn" id="suggestionsToggle" title="AI Suggestions">💡</button>
+    <div class="suggestions-panel" id="suggestionsPanel">
+        <div class="suggestions-header">
+            <div>
+                <h4>AI Suggestions</h4>
+                <small>Quick fixes for cyber/security issues</small>
+            </div>
+            <button class="modal-close" id="suggestionsClose">&times;</button>
+        </div>
+        <div class="suggestions-body">
+            <textarea id="suggestionContext" placeholder="Describe the issue (e.g., 'lateral movement detected')" rows="3"></textarea>
+            <button class="btn-secondary" id="generateSuggestion">Generate Suggestion</button>
+            <div class="suggestions-list" id="suggestionsList"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
